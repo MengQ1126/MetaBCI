@@ -171,6 +171,7 @@ class ShallowNet(nn.Module):
 
         self.fc_layer = nn.Linear(middle_size, n_classes, bias=True)
         self.model = nn.Sequential(self.step1, self.step2, self.step3, self.fc_layer)
+
         self._reset_parameters()
 
     @torch.no_grad()
@@ -187,10 +188,3 @@ class ShallowNet(nn.Module):
         X = X.unsqueeze(1)
         out = self.model(X)
         return out
-
-    def cal_backbone(self, X: Tensor, **kwargs):
-        X = X.unsqueeze(1)
-        tmp = X
-        for i in range(len(self.model) - 1):
-            tmp = self.model[i](tmp)
-        return tmp

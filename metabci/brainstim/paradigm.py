@@ -16,7 +16,7 @@ from copy import copy
 import random
 from scipy import signal
 from PIL import Image
-
+import time
 
 # prefunctions
 
@@ -321,10 +321,17 @@ class KeyboardInterface(object):
         """
 
         # check number of symbols
+
+        # path_A = "/A.jpg"
+        # path_B = "/B.jpg"
+        # path_C = "/C.jpg"
+        # image_folder = "D:/脑控机械臂"
+        # image_files = ["A.jpg", "B.jpg", "C.jpg"]
+        # self.symbols = [os.path.join(image_folder, img) for img in image_files]
         if (symbols is not None) and (len(symbols) >= self.n_elements):
             self.symbols = symbols
         elif self.n_elements <= 40:
-            self.symbols = "".join([string.ascii_uppercase, "1234567890+-*/"])
+             self.symbols = "".join(["左中右"])
         else:
             raise Exception("Please input correct symbol list!")
 
@@ -596,6 +603,7 @@ class SSVEP(VisualStim):
     """
 
     def __init__(self, win, colorSpace="rgb", allowGUI=True):
+
         """Item class from VisualStim.
 
         Args:
@@ -677,13 +685,13 @@ class SSVEP(VisualStim):
                 )
                 - 1
             )
-            if self.stim_colors[0].shape[0] != self.n_elements:
-                raise Exception("Please input correct num of stims!")
+            # if self.stim_colors[0].shape[0] != self.n_elements:
+            #     raise Exception("Please input correct num of stims!")
 
-        incorrect_frame = self.stim_colors.shape[0] != self.stim_frames
-        incorrect_number = self.stim_colors.shape[1] != self.n_elements
-        if incorrect_frame or incorrect_number:
-            raise Exception("Incorrect color matrix or flash frames!")
+        # incorrect_frame = self.stim_colors.shape[0] != self.stim_frames
+        # incorrect_number = self.stim_colors.shape[1] != self.n_elements
+        # if incorrect_frame or incorrect_number:
+        #     raise Exception("Incorrect color matrix or flash frames!")
 
         # add flashing targets onto interface
         self.flash_stimuli = []
@@ -701,13 +709,18 @@ class SSVEP(VisualStim):
                     sfs=self.stim_sfs,
                     contrs=self.stim_contrs,
                     elementTex=np.ones((64, 64)),
+                    # elementTex=[visual.ImageStim(self.win, image=img) for img in self.symbols],
+
                     elementMask=None,
                     texRes=48,
                 )
+
             )
 
 
-# standard P300 paradigm
+
+
+            # standard P300 paradigm
 
 
 class P300(VisualStim):
@@ -1749,7 +1762,8 @@ class SSAVEP(VisualStim):
 
     def __init__(
         self, win, n_elements=20, n_members=8, colorSpace="rgb", allowGUI=True
-    ):
+        # self, win, n_elements=4, n_members=8, colorSpace="rgb", allowGUI=True
+     ):
         self.n_members = n_members
         self.n_elements = n_elements
         self.n_groups = self.n_members * self.n_elements
@@ -1802,7 +1816,8 @@ class SSAVEP(VisualStim):
         )
         self.positions_rad = positions
         self.stim_pos = self.positions_rad
-        self.element_mask = np.zeros((self.n_groups, self.n_members), dtype=np.bool)
+        #self.element_mask = np.zeros((self.n_groups, self.n_members), dtype=np.bool)
+        self.element_mask = np.zeros((self.n_groups, self.n_members), dtype=np.bool_)
         self.radius = radius
         self.angles = angles
         self.angles = np.tile(np.reshape(self.angles, (-1, 1)), (1, self.n_members))
@@ -2587,8 +2602,17 @@ def paradigm(
                     VSObject.text_response.text = VSObject.symbol_text
                     VSObject.text_response.pos = res_text_pos
                     VSObject.text_response.draw()
+
+                    # for image in self.flash_images:
+                    #     image.draw()
+
                     iframe += 1
                     win.flip()
+        random.seed(time.time())
+        labels = ["左位置抓取", "中位置抓取", "右位置抓取"]
+        generated_label = f"Generated Label: {random.choice(labels)}"
+        print(generated_label)
+
 
     elif pdim == "avep":
         # config experiment settings
