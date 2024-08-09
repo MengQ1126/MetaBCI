@@ -710,7 +710,6 @@ class SSVEP(VisualStim):
                     contrs=self.stim_contrs,
                     elementTex=np.ones((64, 64)),
                     # elementTex=[visual.ImageStim(self.win, image=img) for img in self.symbols],
-
                     elementMask=None,
                     texRes=48,
                 )
@@ -2401,7 +2400,6 @@ class GetPlabel_MyTherad:
 
 # basic experiment control
 
-
 def paradigm(
     VSObject,
     win,
@@ -2513,6 +2511,7 @@ def paradigm(
             inlet = StreamInlet(streams[0])  # receive stream data
 
     if pdim == "ssvep":
+
         # config experiment settings
         conditions = [{"id": i} for i in range(VSObject.n_elements)]
         trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
@@ -2580,7 +2579,7 @@ def paradigm(
 
             # phase IV: respond
             if inlet:
-                VSObject.rect_response.draw()
+                random.seed(time.time())
                 VSObject.text_response.draw()
                 for text_stimulus in VSObject.text_stimuli:
                     text_stimulus.draw()
@@ -2603,540 +2602,552 @@ def paradigm(
                     VSObject.text_response.pos = res_text_pos
                     VSObject.text_response.draw()
 
-                    # for image in self.flash_images:
-                    #     image.draw()
-
                     iframe += 1
                     win.flip()
-        random.seed(time.time())
-        labels = ["左位置抓取", "中位置抓取", "右位置抓取"]
-        generated_label = f"Generated Label: {random.choice(labels)}"
-        print(generated_label)
+                    random.seed(time.time())
+
+                labels = ["左位置抓取", "中位置抓取", "右位置抓取"]
+                generated_label = f" {random.choice(labels)}"
+                print(generated_label)
+                return generated_label
 
 
-    elif pdim == "avep":
-        # config experiment settings
-        conditions = [{"id": i} for i in range(VSObject.n_elements)]
-        trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
-        # start routine
-        # episode 1: display speller interface
-        iframe = 0
-        while iframe < int(fps * display_time):
-            if online:
-                VSObject.rect_response.draw()
-                VSObject.text_response.draw()
-            for text_stimulus in VSObject.text_stimuli:
-                text_stimulus.draw()
-            iframe += 1
-            win.flip()
-        # episode 2: begin to flash
-        if port:
-            port.setData(0)
-        for trial in trials:
-            # quit demo
-            keys = event.getKeys(["q"])
-            if "q" in keys:
-                break
-            # initialise index position
-            id = int(trial["id"])
-            position = VSObject.stim_pos[id] + np.array([0, VSObject.tex_height / 2])
-            VSObject.index_stimuli.setPos(position)
 
-            # phase I: speller & index (eye shifting)
-            iframe = 0
-            while iframe < int(fps * index_time):
-                if online:
-                    VSObject.rect_response.draw()
-                    VSObject.text_response.draw()
-                for text_stimulus in VSObject.text_stimuli:
-                    text_stimulus.draw()
-                VSObject.index_stimuli.draw()
-                iframe += 1
-                win.flip()
 
-            for round_i in range(VSObject.n_rep):
-                # phase II: rest state
-                if rest_time != 0:
-                    iframe = 0
-                    while iframe < int(fps * rest_time):
-                        if iframe == 0 and port and online and round_i == 0:
-                            VSObject.win.callOnFlip(port.setData, 2)
-                        elif iframe == 0 and port and round_i == 0:
-                            VSObject.win.callOnFlip(port.setData, id + 1)
-                            print(id + 1)
-                        if iframe == port_frame and port and round_i == 0:
-                            port.setData(0)
 
-                        if online:
-                            VSObject.rect_response.draw()
-                            VSObject.text_response.draw()
-                        for text_stimulus in VSObject.text_stimuli:
-                            text_stimulus.draw()
-                        iframe += 1
-                        win.flip()
+    # elif pdim == "avep":
+    #     # config experiment settings
+    #     conditions = [{"id": i} for i in range(VSObject.n_elements)]
+    #     trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
+    #     # start routine
+    #     # episode 1: display speller interface
+    #     iframe = 0
+    #     while iframe < int(fps * display_time):
+    #         if online:
+    #             VSObject.rect_response.draw()
+    #             VSObject.text_response.draw()
+    #         for text_stimulus in VSObject.text_stimuli:
+    #             text_stimulus.draw()
+    #         iframe += 1
+    #         win.flip()
+    #     # episode 2: begin to flash
+    #     if port:
+    #         port.setData(0)
+    #     for trial in trials:
+    #         # quit demo
+    #         keys = event.getKeys(["q"])
+    #         if "q" in keys:
+    #             break
+    #         # initialise index position
+    #         id = int(trial["id"])
+    #         position = VSObject.stim_pos[id] + np.array([0, VSObject.tex_height / 2])
+    #         VSObject.index_stimuli.setPos(position)
+    #
+    #         # phase I: speller & index (eye shifting)
+    #         iframe = 0
+    #         while iframe < int(fps * index_time):
+    #             if online:
+    #                 VSObject.rect_response.draw()
+    #                 VSObject.text_response.draw()
+    #             for text_stimulus in VSObject.text_stimuli:
+    #                 text_stimulus.draw()
+    #             VSObject.index_stimuli.draw()
+    #             iframe += 1
+    #             win.flip()
+    #
+    #         for round_i in range(VSObject.n_rep):
+    #             # phase II: rest state
+    #             if rest_time != 0:
+    #                 iframe = 0
+    #                 while iframe < int(fps * rest_time):
+    #                     if iframe == 0 and port and online and round_i == 0:
+    #                         VSObject.win.callOnFlip(port.setData, 2)
+    #                     elif iframe == 0 and port and round_i == 0:
+    #                         VSObject.win.callOnFlip(port.setData, id + 1)
+    #                         print(id + 1)
+    #                     if iframe == port_frame and port and round_i == 0:
+    #                         port.setData(0)
+    #
+    #                     if online:
+    #                         VSObject.rect_response.draw()
+    #                         VSObject.text_response.draw()
+    #                     for text_stimulus in VSObject.text_stimuli:
+    #                         text_stimulus.draw()
+    #                     iframe += 1
+    #                     win.flip()
+    #
+    #             # phase III: target stimulating
+    #             for sf in range(VSObject.stim_frames):
+    #                 if sf == 0 and port and online:
+    #                     VSObject.win.callOnFlip(port.setData, 2)
+    #                 elif sf == 0 and port:
+    #                     VSObject.win.callOnFlip(port.setData, round_i + 1)
+    #                 if sf == port_frame and port:
+    #                     port.setData(0)
+    #                 VSObject.flash_stimuli[sf].draw()
+    #                 if online:
+    #                     VSObject.rect_response.draw()
+    #                     VSObject.text_response.draw()
+    #                 for text_stimulus in VSObject.text_stimuli:
+    #                     text_stimulus.draw()
+    #                 win.flip()
+    #
+    #         # phase IV: respond
+    #         if inlet:
+    #             VSObject.rect_response.draw()
+    #             VSObject.text_response.draw()
+    #             for text_stimulus in VSObject.text_stimuli:
+    #                 text_stimulus.draw()
+    #             win.flip()
+    #             samples, timestamp = inlet.pull_sample()
+    #             predict_id = int(samples[0]) - 1  # online predict id
+    #             VSObject.symbol_text = (
+    #                 VSObject.symbol_text + VSObject.symbols[predict_id]
+    #             )
+    #             res_text_pos = (
+    #                 res_text_pos[0] + VSObject.symbol_height / 3,
+    #                 res_text_pos[1],
+    #             )
+    #             iframe = 0
+    #             while iframe < int(fps * response_time):
+    #                 for text_stimulus in VSObject.text_stimuli:
+    #                     text_stimulus.draw()
+    #                 VSObject.rect_response.draw()
+    #                 VSObject.text_response.text = VSObject.symbol_text
+    #                 VSObject.text_response.pos = res_text_pos
+    #                 VSObject.text_response.draw()
+    #                 iframe += 1
+    #                 win.flip()
+    #
+    # elif pdim == "p300":
+    #     # config experiment settings
+    #     conditions = [{"id": i} for i in range(VSObject.n_elements)]
+    #     trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
+    #
+    #     # start routine
+    #     # episode 1: display speller interface
+    #     iframe = 0
+    #     while iframe < int(fps * display_time):
+    #         if online:
+    #             VSObject.rect_response.draw()
+    #             VSObject.text_response.draw()
+    #         VSObject.back_stimuli.draw()
+    #         iframe += 1
+    #         win.flip()
+    #
+    #     # episode 2: begin to flash
+    #     if port:
+    #         port.setData(0)
+    #     for trial in trials:
+    #         # quit demo
+    #         keys = event.getKeys(["q"])
+    #         if "q" in keys:
+    #             break
+    #
+    #         # initialise index position
+    #         id = int(trial["id"])
+    #         position = VSObject.stim_pos[id] + np.array([0, VSObject.stim_width / 2])
+    #         VSObject.index_stimuli.setPos(position)
+    #
+    #         # phase I: speller & index (eye shifting)
+    #         iframe = 0
+    #         while iframe < int(fps * index_time):
+    #             if iframe == 0 and port and online:
+    #                 VSObject.win.callOnFlip(port.setData, id + 21)
+    #             elif iframe == 0 and port:
+    #                 VSObject.win.callOnFlip(port.setData, id + 21)
+    #             if iframe == port_frame and port:
+    #                 port.setData(0)
+    #             VSObject.back_stimuli.draw()
+    #             if online:
+    #                 VSObject.rect_response.draw()
+    #                 VSObject.text_response.draw()
+    #             for text_stimulus in VSObject.text_stimuli:
+    #                 text_stimulus.draw()
+    #             VSObject.index_stimuli.draw()
+    #             iframe += 1
+    #             win.flip()
+    #
+    #         # phase II: rest state
+    #         if rest_time != 0:
+    #             iframe = 0
+    #             while iframe < int(fps * rest_time):
+    #                 VSObject.back_stimuli.draw()
+    #                 if online:
+    #                     VSObject.rect_response.draw()
+    #                     VSObject.text_response.draw()
+    #                 iframe += 1
+    #                 win.flip()
+    #
+    #         # phase III: target stimulating
+    #
+    #         tmp = 0
+    #         nonzeros_label = 0
+    #         for round_num in range(VSObject.stim_round):
+    #             for sf in range(VSObject.stim_frames):
+    #                 if VSObject.roworcol_label[sf] > 0 and port:
+    #                     VSObject.win.callOnFlip(
+    #                         port.setData,
+    #                         VSObject.order_index[tmp],
+    #                     )
+    #                     nonzeros_label = sf
+    #                     tmp += 1
+    #
+    #                     # time_recrod.append(time.time())
+    #                     # T = time_recrod[-1] - time_recrod[-2]
+    #                     # print('P3:%s毫秒' % ((T)*1000))
+    #                 if (sf - nonzeros_label) > port_frame and port:
+    #                     port.setData(0)
+    #
+    #                 # for text_stimulus in VSObject.text_stimuli:
+    #                 #     text_stimulus.draw()
+    #                 VSObject.back_stimuli.draw()
+    #                 VSObject.flash_stimuli[
+    #                     round(round_num * VSObject.stim_frames + sf)
+    #                 ].draw()
+    #                 if online:
+    #                     VSObject.rect_response.draw()
+    #                     VSObject.text_response.draw()
+    #                 win.flip()
+    #
+    #         # phase IV: respond
+    #         if inlet:
+    #             VSObject.rect_response.draw()
+    #             VSObject.text_response.draw()
+    #             for text_stimulus in VSObject.text_stimuli:
+    #                 text_stimulus.draw()
+    #             win.flip()
+    #             samples, timestamp = inlet.pull_sample()
+    #             predict_id = int(samples[0]) - 1  # online predict id
+    #             VSObject.symbol_text = (
+    #                 VSObject.symbol_text + VSObject.symbols[predict_id]
+    #             )
+    #             res_text_pos = (
+    #                 res_text_pos[0] + VSObject.symbol_height / 3,
+    #                 res_text_pos[1],
+    #             )
+    #             iframe = 0
+    #             while iframe < int(fps * response_time):
+    #                 for text_stimulus in VSObject.text_stimuli:
+    #                     text_stimulus.draw()
+    #                 VSObject.rect_response.draw()
+    #                 VSObject.text_response.text = VSObject.symbol_text
+    #                 VSObject.text_response.pos = res_text_pos
+    #                 VSObject.text_response.draw()
+    #                 iframe += 1
+    #                 win.flip()
+    #
+    # elif pdim == "mi":
+    #     # config experiment settings
+    #     conditions = [
+    #         {"id": 0, "name": "left_hand"},
+    #         {"id": 1, "name": "right_hand"},
+    #         # {"id": 2, "name": "both_hands"},
+    #     ]
+    #     trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
+    #
+    #     # start routine
+    #     # episode 1: display speller interface
+    #     iframe = 0
+    #     while iframe < int(fps * display_time):
+    #         VSObject.normal_left_stimuli.draw()
+    #         VSObject.normal_right_stimuli.draw()
+    #         iframe += 1
+    #         win.flip()
+    #
+    #     # episode 2: begin to flash
+    #     if port:
+    #         port.setData(0)
+    #     for trial in trials:
+    #         # quit demo
+    #         keys = event.getKeys(["q"])
+    #         if "q" in keys:
+    #             break
+    #
+    #         # initialise index position
+    #         id = int(trial["id"])
+    #         if id == 0:
+    #             image_stimuli = [VSObject.image_left_stimuli]
+    #             normal_stimuli = [VSObject.normal_right_stimuli]
+    #         elif id == 1:
+    #             image_stimuli = [VSObject.image_right_stimuli]
+    #             normal_stimuli = [VSObject.normal_left_stimuli]
+    #         else:
+    #             image_stimuli = [
+    #                 VSObject.image_left_stimuli,
+    #                 VSObject.image_right_stimuli,
+    #             ]
+    #             normal_stimuli = []
+    #
+    #         # phase I: rest state
+    #         if rest_time != 0:
+    #             iframe = 0
+    #             while iframe < int(fps * rest_time):
+    #                 VSObject.normal_left_stimuli.draw()
+    #                 VSObject.normal_right_stimuli.draw()
+    #                 iframe += 1
+    #                 win.flip()
+    #
+    #         # phase II: speller & index (eye shifting)
+    #         iframe = 0
+    #         while iframe < int(fps * index_time):
+    #             for _image_stimuli in image_stimuli:
+    #                 _image_stimuli.draw()
+    #             if normal_stimuli:
+    #                 for _normal_stimuli in normal_stimuli:
+    #                     _normal_stimuli.draw()
+    #             iframe += 1
+    #             win.flip()
+    #
+    #         # phase III: target stimulating
+    #         iframe = 0
+    #         while iframe < int(fps * image_time):
+    #             if iframe == 0 and port and online:
+    #                 VSObject.win.callOnFlip(port.setData, id + 1)
+    #             elif iframe == 0 and port:
+    #                 VSObject.win.callOnFlip(port.setData, id + 1)
+    #             if iframe == port_frame and port:
+    #                 port.setData(0)
+    #             VSObject.text_stimulus.draw()
+    #             for _image_stimuli in image_stimuli:
+    #                 _image_stimuli.draw()
+    #             if normal_stimuli:
+    #                 for _normal_stimuli in normal_stimuli:
+    #                     _normal_stimuli.draw()
+    #             iframe += 1
+    #             win.flip()
+    #
+    #         # phase IV: respond
+    #         if inlet:
+    #             VSObject.normal_left_stimuli.draw()
+    #             VSObject.normal_right_stimuli.draw()
+    #             win.flip()
+    #
+    #             samples, timestamp = inlet.pull_sample()
+    #             predict_id = int(samples[0]) - 1  # online predict id
+    #
+    #             if predict_id == 0:
+    #                 response_stimuli = [VSObject.response_left_stimuli]
+    #                 normal_stimuli = [VSObject.normal_right_stimuli]
+    #             elif predict_id == 1:
+    #                 response_stimuli = [VSObject.response_right_stimuli]
+    #                 normal_stimuli = [VSObject.normal_left_stimuli]
+    #             else:
+    #                 response_stimuli = [
+    #                     VSObject.response_left_stimuli,
+    #                     VSObject.response_right_stimuli,
+    #                 ]
+    #                 normal_stimuli = []
+    #
+    #             iframe = 0
+    #             while iframe < int(fps * response_time):
+    #                 for _response_stimuli in response_stimuli:
+    #                     _response_stimuli.draw()
+    #                 if normal_stimuli:
+    #                     for _normal_stimuli in normal_stimuli:
+    #                         _normal_stimuli.draw()
+    #                 iframe += 1
+    #                 win.flip()
+    #
+    # elif pdim == "con-ssvep":
+    #     global online_text_pos, online_symbol_text
+    #
+    #     if inlet:
+    #         MyTherad = GetPlabel_MyTherad(inlet)
+    #         MyTherad.feedbackThread()
+    #
+    #     # config experiment settings
+    #     conditions = [{"id": i} for i in range(VSObject.n_elements)]
+    #     trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
+    #
+    #     # start routine
+    #     # episode 1: display speller interface
+    #     iframe = 0
+    #     while iframe < int(fps * display_time):
+    #         if online:
+    #             VSObject.rect_response.draw()
+    #             VSObject.text_response.draw()
+    #         for text_stimulus in VSObject.text_stimuli:
+    #             text_stimulus.draw()
+    #         iframe += 1
+    #         win.flip()
+    #
+    #     # episode 2: begin to flash
+    #     if port:
+    #         port.setData(0)
+    #     for trial in trials:
+    #         # quit demo
+    #         keys = event.getKeys(["q"])
+    #         if "q" in keys:
+    #             MyTherad.stop_feedbackThread()
+    #             break
+    #
+    #         # initialise index position
+    #         id = int(trial["id"])
+    #         position = VSObject.stim_pos[id] + np.array([0, VSObject.stim_width / 2])
+    #         VSObject.index_stimuli.setPos(position)
+    #
+    #         # phase I: speller & index (eye shifting)
+    #         iframe = 0
+    #         while iframe < int(fps * index_time):
+    #             if online:
+    #                 VSObject.rect_response.draw()
+    #                 VSObject.text_response.text = online_symbol_text
+    #                 VSObject.text_response.pos = online_text_pos
+    #                 VSObject.text_response.draw()
+    #             for text_stimulus in VSObject.text_stimuli:
+    #                 text_stimulus.draw()
+    #             VSObject.index_stimuli.draw()
+    #             iframe += 1
+    #             win.flip()
+    #
+    #         # phase II: rest state
+    #         if rest_time != 0:
+    #             iframe = 0
+    #             while iframe < int(fps * rest_time):
+    #                 if online:
+    #                     VSObject.rect_response.draw()
+    #                     VSObject.text_response.text = online_symbol_text
+    #                     VSObject.text_response.pos = online_text_pos
+    #                     VSObject.text_response.draw()
+    #                 for text_stimulus in VSObject.text_stimuli:
+    #                     text_stimulus.draw()
+    #                 iframe += 1
+    #                 win.flip()
+    #
+    #         # phase III: target stimulating
+    #         for sf in range(VSObject.stim_frames):
+    #             if sf == 0 and port and online:
+    #                 VSObject.win.callOnFlip(port.setData, 1)
+    #             elif sf == 0 and port:
+    #                 VSObject.win.callOnFlip(port.setData, id + 1)
+    #             if sf == port_frame and port:
+    #                 port.setData(0)
+    #             VSObject.flash_stimuli[sf].draw()
+    #             if online:
+    #                 VSObject.rect_response.draw()
+    #                 VSObject.text_response.text = online_symbol_text
+    #                 VSObject.text_response.pos = online_text_pos
+    #                 VSObject.text_response.draw()
+    #             for text_stimulus in VSObject.text_stimuli:
+    #                 text_stimulus.draw()
+    #             win.flip()
+    #
+    #     if inlet:
+    #         MyTherad.stop_feedbackThread()
+    #
+    # elif pdim == "ssavep":
+    #     conditions = [{"id": i} for i in range(VSObject.n_elements)]
+    #     trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
+    #
+    #     # start routine
+    #     # episode 1: display speller interface
+    #     iframe = 0
+    #     while iframe < int(fps * display_time):
+    #         VSObject.ring[0].draw()
+    #         VSObject.state_stim[0].draw()
+    #         if online:
+    #             VSObject.rect_response.draw()
+    #             VSObject.text_response.draw()
+    #         for text_stimulus in VSObject.text_stimuli:
+    #             text_stimulus.draw()
+    #         VSObject.ring[0].draw()
+    #         VSObject.state_stim[0].draw()
+    #         # VSObject.center_target[0].draw()
+    #         iframe += 1
+    #         win.flip()
+    #
+    #     # episode 2: begin to flash
+    #     if port:
+    #         port.setData(0)
+    #     for trial in trials:
+    #         # quit demo
+    #         keys = event.getKeys(["q"])
+    #         if "q" in keys:
+    #             break
+    #
+    #         # initialise index position
+    #         id = int(trial["id"])
+    #         position = VSObject.stim_pos[id] + np.array([0, VSObject.stim_width / 2])
+    #         VSObject.index_stimuli.setPos(position)
+    #
+    #         # phase I: speller & index (eye shifting)
+    #         iframe = 0
+    #         while iframe < int(fps * index_time):
+    #             if online:
+    #                 VSObject.rect_response.draw()
+    #                 VSObject.text_response.draw()
+    #             for text_stimulus in VSObject.text_stimuli:
+    #                 text_stimulus.draw()
+    #             VSObject.ring[0].draw()
+    #             VSObject.state_stim[0].draw()
+    #             VSObject.index_stimuli.draw()
+    #             iframe += 1
+    #             win.flip()
+    #
+    #         # phase II: rest state
+    #         if rest_time != 0:
+    #             iframe = 0
+    #             while iframe < int(fps * rest_time):
+    #                 if online:
+    #                     VSObject.rect_response.draw()
+    #                     VSObject.text_response.draw()
+    #                 for text_stimulus in VSObject.text_stimuli:
+    #                     text_stimulus.draw()
+    #                 VSObject.ring[0].draw()
+    #                 VSObject.state_stim[0].draw()
+    #                 iframe += 1
+    #                 win.flip()
+    #
+    #         # phase III: target stimulating
+    #         for sf in range(VSObject.stim_frames):
+    #             if sf == 0 and port and online:
+    #                 VSObject.win.callOnFlip(port.setData, id + 1)
+    #             elif sf == 0 and port:
+    #                 VSObject.win.callOnFlip(port.setData, id + 1)
+    #             if sf == port_frame and port:
+    #                 port.setData(0)
+    #             VSObject.flash_stimuli[sf].draw()
+    #             VSObject.ring[0].draw()
+    #             for text_stimulus in VSObject.text_stimuli:
+    #                 text_stimulus.draw()
+    #             win.flip()
+    #
+    #         # phase IV: respond
+    #         if inlet:
+    #             VSObject.rect_response.draw()
+    #             VSObject.text_response.draw()
+    #             VSObject.ring[0].draw()
+    #             VSObject.state_stim[0].draw()
+    #             for text_stimulus in VSObject.text_stimuli:
+    #                 text_stimulus.draw()
+    #             win.flip()
+    #             samples, timestamp = inlet.pull_sample()
+    #             predict_id = int(samples[0]) - 1  # online predict id
+    #             VSObject.symbol_text = (
+    #                 VSObject.symbol_text + VSObject.symbols[predict_id]
+    #             )
+    #             res_text_pos = (
+    #                 res_text_pos[0] + VSObject.symbol_height / 3,
+    #                 res_text_pos[1],
+    #             )
+    #             iframe = 0
+    #             while iframe < int(fps * response_time):
+    #                 for text_stimulus in VSObject.text_stimuli:
+    #                     text_stimulus.draw()
+    #                 VSObject.rect_response.draw()
+    #                 VSObject.text_response.text = VSObject.symbol_text
+    #                 VSObject.text_response.pos = res_text_pos
+    #                 VSObject.text_response.draw()
+    #                 iframe += 1
+    #                 win.flip()
 
-                # phase III: target stimulating
-                for sf in range(VSObject.stim_frames):
-                    if sf == 0 and port and online:
-                        VSObject.win.callOnFlip(port.setData, 2)
-                    elif sf == 0 and port:
-                        VSObject.win.callOnFlip(port.setData, round_i + 1)
-                    if sf == port_frame and port:
-                        port.setData(0)
-                    VSObject.flash_stimuli[sf].draw()
-                    if online:
-                        VSObject.rect_response.draw()
-                        VSObject.text_response.draw()
-                    for text_stimulus in VSObject.text_stimuli:
-                        text_stimulus.draw()
-                    win.flip()
 
-            # phase IV: respond
-            if inlet:
-                VSObject.rect_response.draw()
-                VSObject.text_response.draw()
-                for text_stimulus in VSObject.text_stimuli:
-                    text_stimulus.draw()
-                win.flip()
-                samples, timestamp = inlet.pull_sample()
-                predict_id = int(samples[0]) - 1  # online predict id
-                VSObject.symbol_text = (
-                    VSObject.symbol_text + VSObject.symbols[predict_id]
-                )
-                res_text_pos = (
-                    res_text_pos[0] + VSObject.symbol_height / 3,
-                    res_text_pos[1],
-                )
-                iframe = 0
-                while iframe < int(fps * response_time):
-                    for text_stimulus in VSObject.text_stimuli:
-                        text_stimulus.draw()
-                    VSObject.rect_response.draw()
-                    VSObject.text_response.text = VSObject.symbol_text
-                    VSObject.text_response.pos = res_text_pos
-                    VSObject.text_response.draw()
-                    iframe += 1
-                    win.flip()
-
-    elif pdim == "p300":
-        # config experiment settings
-        conditions = [{"id": i} for i in range(VSObject.n_elements)]
-        trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
-
-        # start routine
-        # episode 1: display speller interface
-        iframe = 0
-        while iframe < int(fps * display_time):
-            if online:
-                VSObject.rect_response.draw()
-                VSObject.text_response.draw()
-            VSObject.back_stimuli.draw()
-            iframe += 1
-            win.flip()
-
-        # episode 2: begin to flash
-        if port:
-            port.setData(0)
-        for trial in trials:
-            # quit demo
-            keys = event.getKeys(["q"])
-            if "q" in keys:
-                break
-
-            # initialise index position
-            id = int(trial["id"])
-            position = VSObject.stim_pos[id] + np.array([0, VSObject.stim_width / 2])
-            VSObject.index_stimuli.setPos(position)
-
-            # phase I: speller & index (eye shifting)
-            iframe = 0
-            while iframe < int(fps * index_time):
-                if iframe == 0 and port and online:
-                    VSObject.win.callOnFlip(port.setData, id + 21)
-                elif iframe == 0 and port:
-                    VSObject.win.callOnFlip(port.setData, id + 21)
-                if iframe == port_frame and port:
-                    port.setData(0)
-                VSObject.back_stimuli.draw()
-                if online:
-                    VSObject.rect_response.draw()
-                    VSObject.text_response.draw()
-                for text_stimulus in VSObject.text_stimuli:
-                    text_stimulus.draw()
-                VSObject.index_stimuli.draw()
-                iframe += 1
-                win.flip()
-
-            # phase II: rest state
-            if rest_time != 0:
-                iframe = 0
-                while iframe < int(fps * rest_time):
-                    VSObject.back_stimuli.draw()
-                    if online:
-                        VSObject.rect_response.draw()
-                        VSObject.text_response.draw()
-                    iframe += 1
-                    win.flip()
-
-            # phase III: target stimulating
-
-            tmp = 0
-            nonzeros_label = 0
-            for round_num in range(VSObject.stim_round):
-                for sf in range(VSObject.stim_frames):
-                    if VSObject.roworcol_label[sf] > 0 and port:
-                        VSObject.win.callOnFlip(
-                            port.setData,
-                            VSObject.order_index[tmp],
-                        )
-                        nonzeros_label = sf
-                        tmp += 1
-
-                        # time_recrod.append(time.time())
-                        # T = time_recrod[-1] - time_recrod[-2]
-                        # print('P3:%s毫秒' % ((T)*1000))
-                    if (sf - nonzeros_label) > port_frame and port:
-                        port.setData(0)
-
-                    # for text_stimulus in VSObject.text_stimuli:
-                    #     text_stimulus.draw()
-                    VSObject.back_stimuli.draw()
-                    VSObject.flash_stimuli[
-                        round(round_num * VSObject.stim_frames + sf)
-                    ].draw()
-                    if online:
-                        VSObject.rect_response.draw()
-                        VSObject.text_response.draw()
-                    win.flip()
-
-            # phase IV: respond
-            if inlet:
-                VSObject.rect_response.draw()
-                VSObject.text_response.draw()
-                for text_stimulus in VSObject.text_stimuli:
-                    text_stimulus.draw()
-                win.flip()
-                samples, timestamp = inlet.pull_sample()
-                predict_id = int(samples[0]) - 1  # online predict id
-                VSObject.symbol_text = (
-                    VSObject.symbol_text + VSObject.symbols[predict_id]
-                )
-                res_text_pos = (
-                    res_text_pos[0] + VSObject.symbol_height / 3,
-                    res_text_pos[1],
-                )
-                iframe = 0
-                while iframe < int(fps * response_time):
-                    for text_stimulus in VSObject.text_stimuli:
-                        text_stimulus.draw()
-                    VSObject.rect_response.draw()
-                    VSObject.text_response.text = VSObject.symbol_text
-                    VSObject.text_response.pos = res_text_pos
-                    VSObject.text_response.draw()
-                    iframe += 1
-                    win.flip()
-
-    elif pdim == "mi":
-        # config experiment settings
-        conditions = [
-            {"id": 0, "name": "left_hand"},
-            {"id": 1, "name": "right_hand"},
-            # {"id": 2, "name": "both_hands"},
-        ]
-        trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
-
-        # start routine
-        # episode 1: display speller interface
-        iframe = 0
-        while iframe < int(fps * display_time):
-            VSObject.normal_left_stimuli.draw()
-            VSObject.normal_right_stimuli.draw()
-            iframe += 1
-            win.flip()
-
-        # episode 2: begin to flash
-        if port:
-            port.setData(0)
-        for trial in trials:
-            # quit demo
-            keys = event.getKeys(["q"])
-            if "q" in keys:
-                break
-
-            # initialise index position
-            id = int(trial["id"])
-            if id == 0:
-                image_stimuli = [VSObject.image_left_stimuli]
-                normal_stimuli = [VSObject.normal_right_stimuli]
-            elif id == 1:
-                image_stimuli = [VSObject.image_right_stimuli]
-                normal_stimuli = [VSObject.normal_left_stimuli]
-            else:
-                image_stimuli = [
-                    VSObject.image_left_stimuli,
-                    VSObject.image_right_stimuli,
-                ]
-                normal_stimuli = []
-
-            # phase I: rest state
-            if rest_time != 0:
-                iframe = 0
-                while iframe < int(fps * rest_time):
-                    VSObject.normal_left_stimuli.draw()
-                    VSObject.normal_right_stimuli.draw()
-                    iframe += 1
-                    win.flip()
-
-            # phase II: speller & index (eye shifting)
-            iframe = 0
-            while iframe < int(fps * index_time):
-                for _image_stimuli in image_stimuli:
-                    _image_stimuli.draw()
-                if normal_stimuli:
-                    for _normal_stimuli in normal_stimuli:
-                        _normal_stimuli.draw()
-                iframe += 1
-                win.flip()
-
-            # phase III: target stimulating
-            iframe = 0
-            while iframe < int(fps * image_time):
-                if iframe == 0 and port and online:
-                    VSObject.win.callOnFlip(port.setData, id + 1)
-                elif iframe == 0 and port:
-                    VSObject.win.callOnFlip(port.setData, id + 1)
-                if iframe == port_frame and port:
-                    port.setData(0)
-                VSObject.text_stimulus.draw()
-                for _image_stimuli in image_stimuli:
-                    _image_stimuli.draw()
-                if normal_stimuli:
-                    for _normal_stimuli in normal_stimuli:
-                        _normal_stimuli.draw()
-                iframe += 1
-                win.flip()
-
-            # phase IV: respond
-            if inlet:
-                VSObject.normal_left_stimuli.draw()
-                VSObject.normal_right_stimuli.draw()
-                win.flip()
-
-                samples, timestamp = inlet.pull_sample()
-                predict_id = int(samples[0]) - 1  # online predict id
-
-                if predict_id == 0:
-                    response_stimuli = [VSObject.response_left_stimuli]
-                    normal_stimuli = [VSObject.normal_right_stimuli]
-                elif predict_id == 1:
-                    response_stimuli = [VSObject.response_right_stimuli]
-                    normal_stimuli = [VSObject.normal_left_stimuli]
-                else:
-                    response_stimuli = [
-                        VSObject.response_left_stimuli,
-                        VSObject.response_right_stimuli,
-                    ]
-                    normal_stimuli = []
-
-                iframe = 0
-                while iframe < int(fps * response_time):
-                    for _response_stimuli in response_stimuli:
-                        _response_stimuli.draw()
-                    if normal_stimuli:
-                        for _normal_stimuli in normal_stimuli:
-                            _normal_stimuli.draw()
-                    iframe += 1
-                    win.flip()
-
-    elif pdim == "con-ssvep":
-        global online_text_pos, online_symbol_text
-
-        if inlet:
-            MyTherad = GetPlabel_MyTherad(inlet)
-            MyTherad.feedbackThread()
-
-        # config experiment settings
-        conditions = [{"id": i} for i in range(VSObject.n_elements)]
-        trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
-
-        # start routine
-        # episode 1: display speller interface
-        iframe = 0
-        while iframe < int(fps * display_time):
-            if online:
-                VSObject.rect_response.draw()
-                VSObject.text_response.draw()
-            for text_stimulus in VSObject.text_stimuli:
-                text_stimulus.draw()
-            iframe += 1
-            win.flip()
-
-        # episode 2: begin to flash
-        if port:
-            port.setData(0)
-        for trial in trials:
-            # quit demo
-            keys = event.getKeys(["q"])
-            if "q" in keys:
-                MyTherad.stop_feedbackThread()
-                break
-
-            # initialise index position
-            id = int(trial["id"])
-            position = VSObject.stim_pos[id] + np.array([0, VSObject.stim_width / 2])
-            VSObject.index_stimuli.setPos(position)
-
-            # phase I: speller & index (eye shifting)
-            iframe = 0
-            while iframe < int(fps * index_time):
-                if online:
-                    VSObject.rect_response.draw()
-                    VSObject.text_response.text = online_symbol_text
-                    VSObject.text_response.pos = online_text_pos
-                    VSObject.text_response.draw()
-                for text_stimulus in VSObject.text_stimuli:
-                    text_stimulus.draw()
-                VSObject.index_stimuli.draw()
-                iframe += 1
-                win.flip()
-
-            # phase II: rest state
-            if rest_time != 0:
-                iframe = 0
-                while iframe < int(fps * rest_time):
-                    if online:
-                        VSObject.rect_response.draw()
-                        VSObject.text_response.text = online_symbol_text
-                        VSObject.text_response.pos = online_text_pos
-                        VSObject.text_response.draw()
-                    for text_stimulus in VSObject.text_stimuli:
-                        text_stimulus.draw()
-                    iframe += 1
-                    win.flip()
-
-            # phase III: target stimulating
-            for sf in range(VSObject.stim_frames):
-                if sf == 0 and port and online:
-                    VSObject.win.callOnFlip(port.setData, 1)
-                elif sf == 0 and port:
-                    VSObject.win.callOnFlip(port.setData, id + 1)
-                if sf == port_frame and port:
-                    port.setData(0)
-                VSObject.flash_stimuli[sf].draw()
-                if online:
-                    VSObject.rect_response.draw()
-                    VSObject.text_response.text = online_symbol_text
-                    VSObject.text_response.pos = online_text_pos
-                    VSObject.text_response.draw()
-                for text_stimulus in VSObject.text_stimuli:
-                    text_stimulus.draw()
-                win.flip()
-
-        if inlet:
-            MyTherad.stop_feedbackThread()
-
-    elif pdim == "ssavep":
-        conditions = [{"id": i} for i in range(VSObject.n_elements)]
-        trials = data.TrialHandler(conditions, nrep, name="experiment", method="random")
-
-        # start routine
-        # episode 1: display speller interface
-        iframe = 0
-        while iframe < int(fps * display_time):
-            VSObject.ring[0].draw()
-            VSObject.state_stim[0].draw()
-            if online:
-                VSObject.rect_response.draw()
-                VSObject.text_response.draw()
-            for text_stimulus in VSObject.text_stimuli:
-                text_stimulus.draw()
-            VSObject.ring[0].draw()
-            VSObject.state_stim[0].draw()
-            # VSObject.center_target[0].draw()
-            iframe += 1
-            win.flip()
-
-        # episode 2: begin to flash
-        if port:
-            port.setData(0)
-        for trial in trials:
-            # quit demo
-            keys = event.getKeys(["q"])
-            if "q" in keys:
-                break
-
-            # initialise index position
-            id = int(trial["id"])
-            position = VSObject.stim_pos[id] + np.array([0, VSObject.stim_width / 2])
-            VSObject.index_stimuli.setPos(position)
-
-            # phase I: speller & index (eye shifting)
-            iframe = 0
-            while iframe < int(fps * index_time):
-                if online:
-                    VSObject.rect_response.draw()
-                    VSObject.text_response.draw()
-                for text_stimulus in VSObject.text_stimuli:
-                    text_stimulus.draw()
-                VSObject.ring[0].draw()
-                VSObject.state_stim[0].draw()
-                VSObject.index_stimuli.draw()
-                iframe += 1
-                win.flip()
-
-            # phase II: rest state
-            if rest_time != 0:
-                iframe = 0
-                while iframe < int(fps * rest_time):
-                    if online:
-                        VSObject.rect_response.draw()
-                        VSObject.text_response.draw()
-                    for text_stimulus in VSObject.text_stimuli:
-                        text_stimulus.draw()
-                    VSObject.ring[0].draw()
-                    VSObject.state_stim[0].draw()
-                    iframe += 1
-                    win.flip()
-
-            # phase III: target stimulating
-            for sf in range(VSObject.stim_frames):
-                if sf == 0 and port and online:
-                    VSObject.win.callOnFlip(port.setData, id + 1)
-                elif sf == 0 and port:
-                    VSObject.win.callOnFlip(port.setData, id + 1)
-                if sf == port_frame and port:
-                    port.setData(0)
-                VSObject.flash_stimuli[sf].draw()
-                VSObject.ring[0].draw()
-                for text_stimulus in VSObject.text_stimuli:
-                    text_stimulus.draw()
-                win.flip()
-
-            # phase IV: respond
-            if inlet:
-                VSObject.rect_response.draw()
-                VSObject.text_response.draw()
-                VSObject.ring[0].draw()
-                VSObject.state_stim[0].draw()
-                for text_stimulus in VSObject.text_stimuli:
-                    text_stimulus.draw()
-                win.flip()
-                samples, timestamp = inlet.pull_sample()
-                predict_id = int(samples[0]) - 1  # online predict id
-                VSObject.symbol_text = (
-                    VSObject.symbol_text + VSObject.symbols[predict_id]
-                )
-                res_text_pos = (
-                    res_text_pos[0] + VSObject.symbol_height / 3,
-                    res_text_pos[1],
-                )
-                iframe = 0
-                while iframe < int(fps * response_time):
-                    for text_stimulus in VSObject.text_stimuli:
-                        text_stimulus.draw()
-                    VSObject.rect_response.draw()
-                    VSObject.text_response.text = VSObject.symbol_text
-                    VSObject.text_response.pos = res_text_pos
-                    VSObject.text_response.draw()
-                    iframe += 1
-                    win.flip()
+def generate_random_label():
+            random.seed(time.time())
+            labels = ["左位置抓取", "中位置抓取", "右位置抓取"]
+            generated_label = random.choice(labels)
+                        # print(generated_label)
+            return generated_label
+# result = paradigm()
+final_label = generate_random_label()

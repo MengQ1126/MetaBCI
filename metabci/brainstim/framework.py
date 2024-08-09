@@ -7,6 +7,9 @@ import numpy as np
 from psychopy import core, visual, event, logging
 
 from .utils import _check_array_like, _clean_dict
+import random
+import time
+
 
 
 class Experiment:
@@ -227,6 +230,8 @@ class Experiment:
         self.paradigms[name] = None
         del self.paradigms[name]
 
+
+
     def get_window(self):
         """If the display window does not exist, the window is created according to the initialization parameters.
 
@@ -407,3 +412,10 @@ class Experiment:
                 win.saveFrameIntervals("logLastFrameIntervals.log")
             win.close()
             self.closeEvent()
+# def generate_random_label():
+#     random.seed(time.time())
+#     labels = ["左位置抓取", "中位置抓取", "右位置抓取"]
+#     generated_label = random.choice(labels)
+#     print(generated_label)
+#     return generated_label
+
